@@ -10,4 +10,4 @@ The repository contains following modules:  (à faire)
 Dataset  
 --------
 We used a Kaggle dataset for our project, this dataset contains 983 images of pizza and 983 images of dishes other than pizza.
-[Web site](https://www.kaggle.com/datasets/carlosrunner/pizza-not-pizza)  
+[Dataset's Web site](https://www.kaggle.com/datasets/carlosrunner/pizza-not-pizza)  
