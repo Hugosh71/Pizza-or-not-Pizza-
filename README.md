@@ -22,9 +22,6 @@ install js package :
 ## GitHub Action - Reconnaissance d'image de pizza
 ### Utilisation
 
-1. Créez un fichier de workflow `.github/workflows/pizzaNotpizza.yml` dans votre dépôt.
-2. Ajoutez le contenu suivant pour configurer votre GitHub Action :
-
 ```yaml
 name: PizzaNotpizza
 
