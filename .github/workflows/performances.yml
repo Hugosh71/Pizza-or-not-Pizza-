@@ -1,0 +1,19 @@
+name: Surveillance de performances
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # L'action s'éxecutera tout les jours a minuit.
+
+jobs:
+  evaluer-modele:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v2
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Évaluer les performances
+        run: node performances.js
