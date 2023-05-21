@@ -1,6 +1,6 @@
 Pizza Or Not Pizza?  
 ===================
-Un simple classifieur d'images déterminant si une image est une pizza( ou pas ?)
+Un simple classifieur d'images déterminant si une image est une pizza (ou pas ?)
 
 Structure  
 ---------
