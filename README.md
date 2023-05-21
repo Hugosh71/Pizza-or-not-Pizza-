@@ -20,6 +20,7 @@ install js package :
 
 --------
 ## GitHub Action - Reconnaissance d'image de pizza
+
 ### Utilisation
 
 ```yaml
@@ -89,25 +90,17 @@ jobs:
 ```
 
 --------
-## Formatter (xojs)
-
-Ce projet utilise [xo](https://github.com/xojs/xo) comme outil formatter pour maintenir une cohérence dans le code.
-
-### Installation
-
-Assurez-vous d'avoir [Node.js](https://nodejs.org) installé sur votre machine. Ensuite, exécutez la commande suivante pour installer les dépendances :
-
-```bash
-npm install --save-dev xo
+## Editor config utilisé
 ```
-Pour exécuter le linter et vérifier le code :
-```bash
-npx xo
-```
+# EditorConfig is awesome: https://EditorConfig.org
 
-Pour corriger automatiquement les erreurs et les avertissements :
-```bash
-npx xo --fix
-```
+# top-most EditorConfig file
+root = true
 
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+```
 
