@@ -17,3 +17,40 @@ install js package :
 - npm install @tensorflow/tfjs
 - npm install ramda
 - npm install scikitjs  (train_test_split)
+
+---------
+## GitHub Action - Reconnaissance d'image de pizza
+### Utilisation
+
+1. Créez un fichier de workflow `.github/workflows/pizzaNotpizza.yml` dans votre dépôt.
+2. Ajoutez le contenu suivant pour configurer votre GitHub Action :
+
+```yaml
+name: PizzaNotpizza
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pizza-recognition:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run PizzaNotpizza
+      run: python main.py
+
