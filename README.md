@@ -86,4 +86,28 @@ jobs:
 
       - name: Évaluer les performances
         run: node performances.js
+```
+
+--------
+## Formatter (xojs)
+
+Ce projet utilise [xo](https://github.com/xojs/xo) comme outil formatter pour maintenir une cohérence dans le code.
+
+### Installation
+
+Assurez-vous d'avoir [Node.js](https://nodejs.org) installé sur votre machine. Ensuite, exécutez la commande suivante pour installer les dépendances :
+
+```bash
+npm install --save-dev xo
+```
+Pour exécuter le linter et vérifier le code :
+```bash
+npx xo
+```
+
+Pour corriger automatiquement les erreurs et les avertissements :
+```bash
+npx xo --fix
+```
+
 
