@@ -60,8 +60,11 @@ L'action est déclenchée à chaque push ou pull request sur la branche "main".
 Elle effectue les étapes suivantes :
 
 1.Récupération du code source du dépôt.
+
 2.Configuration de Node.js avec la version 14.
+
 3.Installation des dépendances à partir du fichier package.json.
+
 4.Exécution du script main.js qui contient l'algorithme.
 
 ## GitHub Action - Evaluation de performances
