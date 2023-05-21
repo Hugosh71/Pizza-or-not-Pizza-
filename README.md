@@ -1,15 +1,15 @@
 Pizza Or Not Pizza?  
 ===================
-A simple image classifier using Ramda to determine if an image is a Pizza ( or not ?) 
+Un simple classifieur d'images déterminant si une image est une pizza( ou pas ?)
 
 Structure  
 ---------
-The repository contains following modules:  (à faire)
-- *Main*: it contains the instructions to run the project;  
+le Répetoire contient les modules suivant :  (à faire)
+
 
 Dataset  
 --------
-We used a Kaggle dataset for our project, this dataset contains 983 images of pizza and 983 images of dishes other than pizza.
+Nous avons utilisés un dataset via Kaggle pour notre projet, ce dataset contient 983 images de pizzas et 983 images d'autres plats.
 [Dataset's Web site](https://www.kaggle.com/datasets/carlosrunner/pizza-not-pizza)  
 
 install js package :
