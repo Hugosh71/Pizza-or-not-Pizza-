@@ -1,122 +1,149 @@
-const R = require('ramda');
-const tf = require('@tensorflow/tfjs-node');
-const { InceptionV3, preprocess } = require('@tensorflow-models/inception-v3');
-const { plot } = require('nodeplotlib');
-const path = require('path');
-const fs = require('fs');
+const tf = require('@tensorflow/tfjs');
 const { promisify } = require('util');
-const readdir = promisify(fs.readdir);
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+const { createCanvas, loadImage } = require('canvas');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
-const dataDir = path.join(__dirname, 'pizza_not_pizza');
-const imageDir = path.join(dataDir, 'images');
+// Import the required TensorFlow.js packages
+require('@tensorflow/tfjs-node');
+require('@tensorflow/tfjs-node-gpu');
 
-const getImageData = async (dir, category) => {
-  const files = await readdir(dir);
-  const images = await Promise.all(
-    files
-      .filter((file) => file.endsWith('.jpg'))
-      .map(async (file) => {
-        const imageBuffer = await fs.promises.readFile(path.join(dir, file));
-        return { input: preprocess(imageBuffer), output: category };
-      })
-  );
-  return images;
-};
+const {
+  ImageDataGenerator,
+  Sequential,
+  ModelCheckpoint,
+  EarlyStopping,
+  TensorBoard,
+  Adam,
+  InceptionV3,
+  GlobalAvgPool2D,
+  Dense,
+  BatchNormalization,
+} = tf.keras;
 
-const trainData = await Promise.all([
-  getImageData(path.join(imageDir, 'pizza'), 1),
-  getImageData(path.join(imageDir, 'not_pizza'), 0),
-]).then((results) => R.flatten(results));
+const pandas = require('pandas-js');
 
-const testData = await getImageData(path.join(imageDir, 'test'), null);
+async function main() {
+  console.log('HEllo world');
+  // Set the random seed
+  tf.setRandomSeed(32);
 
-const inceptionV3 = await InceptionV3.create();
+  // Define the image directory
+  const imageDir = 'pizza_not_pizza/';
 
-const flatten = (input) => tf.layers.flatten().apply(input);
+  // Create a function to load images and their labels
+  const loadImageAndLabel = async (imagePath, label) => {
+    const img = await loadImage(imagePath);
+    const canvas = createCanvas(256, 256);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, 256, 256);
+    const imageData = ctx.getImageData(0, 0, 256, 256).data;
+    const imageArray = Array.from(imageData);
+    const imageTensor = tf.tensor4d(imageArray, [1, 256, 256, 4]);
+    const resizedImageTensor = tf.image.resizeBilinear(imageTensor, [256, 256]);
+    return { xs: resizedImageTensor, ys: tf.oneHot(tf.tensor1d([label]), 2) };
+  };
 
-const dense = (units, activation, input) => {
-  const layer = tf.layers.dense({ units, activation });
-  return layer.apply(input);
-};
+  // Load and preprocess the images
+  const loadImages = async () => {
+    const notPizzaDir = path.join(imageDir, 'not_pizza');
+    const notPizzaImages = fs.readdirSync(notPizzaDir).filter((file) => file.split('.')[1] === 'jpg');
+    const notPizzaData = await Promise.all(
+      notPizzaImages.map(async (image) => loadImageAndLabel(path.join(notPizzaDir, image), 0))
+    );
 
-const dropout = (rate, input) => {
-  const layer = tf.layers.dropout({ rate });
-  return layer.apply(input);
-};
+    const pizzaDir = path.join(imageDir, 'pizza');
+    const pizzaImages = fs.readdirSync(pizzaDir).filter((file) => file.split('.')[1] === 'jpg');
+    const pizzaData = await Promise.all(
+      pizzaImages.map(async (image) => loadImageAndLabel(path.join(pizzaDir, image), 1))
+    );
 
-const compileModel = (model) => {
-  model.compile({
-    optimizer: tf.train.adam(),
-    loss: 'binaryCrossentropy',
-    metrics: ['accuracy'],
+    return { xs: notPizzaData.concat(pizzaData).map((data) => data.xs), ys: notPizzaData.concat(pizzaData).map((data) => data.ys) };
+  };
+
+  const data = await loadImages();
+  const { xs, ys } = data;
+
+  // Split the data into training, validation, and test sets
+  const [trainXs, valTestXs, trainYs, valTestYs] = tf.split(xs, [Math.floor(xs.shape[0] * 0.7), Math.floor(xs.shape[0] * 0.3)]);
+  const [valXs, testXs] = tf.split(valTestXs, [Math.floor(valTestXs.shape[0] * 0.6)]);
+  const [valYs, testYs] = tf.split(valTestYs, [Math.floor(valTestYs.shape[0] * 0.6)]);
+
+  // Create the data generators
+  const datagen = new ImageDataGenerator({
+    rescale: 1.0 / 255,
+    shearRange: 0.2,
+    zoomRange: 0.2,
+    horizontalFlip: true,
   });
-  return model;
-};
 
-const createModel = () => {
-  const input = tf.input({ shape: [299, 299, 3] });
-  const model = tf.model({
-    inputs: input,
-    outputs: R.pipe(
-      R.applySpec({
-        inceptionOutput: () => inceptionV3.predict(input),
-        flattenOutput: (inceptionOutput) => flatten(inceptionOutput),
-        denseOutput: (flattenOutput) => dense(512, 'relu', flattenOutput),
-        dropoutOutput: (denseOutput) => dropout(0.5, denseOutput),
-        predictionOutput: (dropoutOutput) => dense(1, 'sigmoid', dropoutOutput),
-      }),
-      R.values,
-      R.reduce((acc, layer) => layer.apply(acc), input)
-    ),
+  const trainGenerator = datagen.flow(trainXs, trainYs, {
+    targetSize: [256, 256],
+    batchSize: 32,
+    classMode: 'categorical',
+    shuffle: true,
   });
-  return model;
-};
 
-const model = createModel();
-const compiledModel = compileModel(model);
+  const valGenerator = datagen.flow(valXs, valYs, {
+    targetSize: [256, 256],
+    batchSize: 32,
+    classMode: 'categorical',
+    shuffle: true,
+  });
 
-const trainXs = tf.stack(trainData.map((data) => data.input));
-const trainYs = tf.tensor1d(trainData.map((data) => data.output));
+  const testGenerator = datagen.flow(testXs, testYs, {
+    targetSize: [256, 256],
+    batchSize: 32,
+    classMode: 'categorical',
+    shuffle: true,
+  });
 
-const testXs = tf.stack(testData.map((data) => data.input));
-const testYs = tf.tensor1d(testData.map((data) => data.output));
+  // Create the base model
+  const baseModel = await InceptionV3.create({ weights: 'imagenet', inputShape: [256, 256, 3] });
+  for (const layer of baseModel.layers) {
+    layer.trainable = false;
+  }
 
-const batchSize = 32;
-const epochs = 10;
+  // Create the model architecture
+  const model = new Sequential();
+  model.add(baseModel);
+  model.add(new GlobalAvgPool2D());
+  model.add(new Dense({ units: 512, activation: 'relu', kernelInitializer: 'heNormal' }));
+  model.add(new BatchNormalization());
+  model.add(new Dense({ units: 256, activation: 'relu', kernelInitializer: 'heNormal' }));
+  model.add(new BatchNormalization());
+  model.add(new Dense({ units: 1, activation: 'sigmoid' }));
 
-await compiledModel.fit(trainXs, trainYs, {
-  batchSize,
-  epochs,
-  validationData: [testXs, testYs],
-  callbacks: [
-    tf.callbacks.earlyStopping({ patience: 3 }),
-    tf.callbacks.tensorBoard({ logDir: path.join(__dirname, 'logs') }),
-    tf.callbacks.modelCheckpoint({
-      filepath: path.join(__dirname, 'model.{epoch}.h5'),
-    }),
-  ],
-});
+  model.summary();
 
-const history = await compiledModel.evaluate(testData);
+  // Compile the model
+  model.compile({ loss: 'binaryCrossentropy', optimizer: new Adam(0.001), metrics: ['accuracy'] });
 
-console.log("Test Loss:", history[0]);
-console.log("Test Accuracy:", history[1]);
+  // Define the callbacks
+  const modelCheck = new ModelCheckpoint('model.h5', { monitor: 'valLoss', saveBestOnly: true });
+  const earlyStop = new EarlyStopping({ monitor: 'valLoss', patience: 3, restoreBestWeights: true });
+  const tensorboard = new TensorBoard('logs');
 
-// Predict on test data
-const predictions = await compiledModel.predict(testData);
+  // Train the model
+  const history = await model.fit(trainGenerator, {
+    validationData: valGenerator,
+    epochs: 20,
+    callbacks: [modelCheck, earlyStop, tensorboard],
+  });
 
-// Display some predictions
-R.range(0, 10).forEach((i) => {
-  console.log("Prediction", i, predictions[i].dataSync());
-});
+  // Plot the training history
+  const plt = require('matplotlib.pyplot');
+  const totalEpochs = Array.from({ length: history.epoch.length }, (_, i) => i);
+  plt.plot(totalEpochs, history.history.loss, 'b', 'Training Loss');
+  plt.plot(totalEpochs, history.history.valLoss, 'r', 'Validation Loss');
+  plt.xlabel('Epochs');
+  plt.ylabel('Loss %');
+  plt.title('Training Loss vs Validation Loss');
+  plt.legend();
+  plt.show();
+}
 
-// Save the model
-const savePath = "file:///path/to/model";
-await tfn.io.saveModel(savePath, compiledModel);
-
-// Load the model
-const loadedModel = await tfn.io.loadModel(savePath);
-
-// Make predictions using the loaded model
-const loadedPredictions = await loadedModel.predict(testData);
-console.log("Loaded Model Predictions", loadedPredictions[0].dataSync());
+main().catch((error) => console.error(error));

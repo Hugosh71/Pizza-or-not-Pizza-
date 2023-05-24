@@ -1,118 +1,53 @@
-const tf = require('@tensorflow/tfjs');
-require('@tensorflow/tfjs-node');
-const pd = require('pandas-js');
+import pandas as pd
+from PIL import Image
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.layers import Dense,Conv2D,Flatten,BatchNormalization,Dropout,MaxPooling2D,GlobalAvgPool2D
+from tensorflow.keras import Model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import TensorBoard,ModelCheckpoint,EarlyStopping
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.optimizers import Adam
+from pathlib import Path
+import os
+from sklearn.model_selection import train_test_split
+from tensorflow.keras import Sequential
+import matplotlib.pyplot as plt
+np.random.seed = 32
 
-const Image = require('image-js').Image;
+image_dir = "pizza_not_pizza/"
 
-const { plot } = require('nodeplotlib');
+not_pizza = [(os.path.join(image_dir,"not_pizza",image),0) for image in os.listdir(os.path.join(image_dir,"not_pizza")) if image.split(".")[1] == "jpg"]
+print(not_pizza)
+pizza = [(os.path.join(image_dir,"pizza",image),1) for image in os.listdir(os.path.join(image_dir,"pizza")) if image.split(".")[1] == "jpg"]
 
-const { 
-  Dense,
-  Conv2D,
-  Flatten,
-  BatchNormalization,
-  Dropout,
-  MaxPooling2D,
-  GlobalAvgPool2D,
-} = require('@tensorflow/tfjs-layers');
+df = pd.DataFrame(not_pizza+pizza,columns=['filename','category'])
+df.sample()
 
-const {
-  InceptionV3,
-} = require('@tensorflow-models/inceptionv3');
+train_df,dummy_df = train_test_split(df,train_size=0.7,random_state=42,shuffle=True)
+val_df,test_df = train_test_split(dummy_df,train_size=0.6,random_state=42,shuffle=True)
 
-const { ResNet50 } = require('@tensorflow-models/resnet50');
+train_df.category = train_df.category.astype(str)
+val_df.category = val_df.category.astype(str)
+test_df.category = test_df.category.astype(str)
 
-const {
-  Adam,
-} = require('@tensorflow/tfjs-optimizers');
+datagen = ImageDataGenerator(rescale=1./255, shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
+train_generator = datagen.flow_from_dataframe(train_df,x_col='filename',y_col='category',target_size=(256,256),batch_size=32,class_mode="binary",shuffle=True)
+val_generator = datagen.flow_from_dataframe(val_df,x_col='filename',y_col='category',target_size=(256,256),batch_size=32,class_mode="binary",shuffle=True)
+test_generator = datagen.flow_from_dataframe(test_df,x_col='filename',y_col='category',target_size=(256,256),batch_size=32,class_mode="binary",shuffle=True)
 
-const { ImageDataGenerator } = require('@tensorflow/tfjs-node');
 
-const {
-  TensorBoard,
-  ModelCheckpoint,
-  EarlyStopping,
-} = require('@tensorflow/tfjs');
+base_model = InceptionV3(weights='imagenet',include_top=False,input_shape=(256,256,3))
+for layer in base_model.layers:
+    layer.trainable=False
 
-const { 
-  join,
-  basename,
-} = require('path');
-
-const fs = require('fs');
-
-const os = require('os');
-
-const randomSeed = 32;
-tf.setSeed(randomSeed);
-const np = tf.numpy();
-
-const imageDir = 'pizza_not_pizza/';
-
-const notPizza = fs.readdirSync(join(imageDir, 'not_pizza'))
-  .filter(file => file.split('.')[1] === 'jpg')
-  .map(file => [join(imageDir, 'not_pizza', file), 0]);
-
-const pizza = fs.readdirSync(join(imageDir, 'pizza'))
-  .filter(file => file.split('.')[1] === 'jpg')
-  .map(file => [join(imageDir, 'pizza', file), 1]);
-
-const imageList = [...notPizza, ...pizza];
-const columns = ['filename', 'category'];
-const df = new pd.DataFrame(imageList, { columns });
-
-console.log(df.sample(5).toString());
-
-const [trainDF, dummyDF] = df.iloc(null, [0, 1]).trainTestSplit(0.7, randomSeed, true);
-const [valDF, testDF] = dummyDF.iloc(null, [0, 1]).trainTestSplit(0.6, randomSeed, true);
-
-trainDF.set('category', trainDF.get('category').astype('string'));
-valDF.set('category', valDF.get('category').astype('string'));
-testDF.set('category', testDF.get('category').astype('string'));
-
-const datagen = new ImageDataGenerator({
-  rescale: 1. / 255,
-  shearRange: 0.2,
-  zoomRange: 0.2,
-  horizontalFlip: true,
-});
-
-const targetSize = [256, 256];
-const batchSize = 32;
-const classMode = 'binary';
-const shuffle = true;
-
-const trainGenerator = datagen.flowFromDataFrame(trainDF.toDict(), {
-  xCol: 'filename',
-  yCol: 'category',
-  targetSize,
-  batchSize,
-  classMode,
-  shuffle,
-});
-
-const valGenerator = datagen.flowFromDataFrame(valDF.toDict(), {
-  xCol: 'filename',
-  yCol: 'category',
-  targetSize,
-  batchSize,
-  classMode,
-  shuffle,
-});
-
-const testGenerator = datagen.flowFromDataFrame(testDF.toDict(), {
-  xCol: 'filename',
-  yCol: 'category',
-  targetSize,
-  batchSize,
-  classMode,
-  shuffle,
-});
-
-const inputShape = [256, 256, 3];
-const baseModel = await InceptionV3.create({inputShape, weights: 'imagenet'});
-for (const layer of
-
+model = Sequential()
+model.add(base_model)
+model.add(GlobalAvgPool2D())
+model.add(Dense(512,activation='relu',kernel_initializer='he_normal'))
+model.add(BatchNormalization())
 # model.add(Dropout(0.2))
 model.add(Dense(256,activation='relu',kernel_initializer='he_normal'))
 model.add(BatchNormalization())
@@ -148,3 +83,4 @@ ax[1].set_xlabel("Epochs")
 ax[1].set_ylabel("Accuracy %")
 ax[1].legend(loc='best')
 plt.show()
+
