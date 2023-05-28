@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-sacle=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ramda@0.27.1/dist/ramda.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRamdaScript();
+    });
+
+    function loadRamdaScript() {
+      if (typeof R === 'undefined') {
+        console.error('Erreur : Le chargement de Ramda a échoué.');
+      } else {
+        console.log('Ramda a été chargé avec succès !');
+        checkRamda();
+      }
+    }
+        function checkRamda() {
+          if (typeof R === 'undefined') {
+            console.error('Erreur : Ramda n\'a pas été chargé correctement.');
+          } else {
+            console.log('Ramda a été chargé avec succès !');
+          }
+        }
+    </script>
+    
+
+    <title>Pizza Classifier</title>
+</head>
+<body>
+    <h1>Pizza Classifier</h1>
+    <div id="console"></div>
+    <video autoplay playsinline muted id="webcam" width="400" height="400"></video>
+    <button id="pizza">Add Pizza</button>
+    <button id="notpizza">Add Food</button>
+    <div id="predictionResult"></div> 
+
+    <script src="index.js"></script>
+</body>
+</html>
