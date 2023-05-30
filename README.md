@@ -1,94 +1,22 @@
 Pizza Or Not Pizza?  
 ===================
-Un simple classifieur d'images déterminant si une image est une pizza (ou pas ?)
+Un simple classifieur d'images déterminant si une image est une pizza (ou pas ?).
 
-Structure  
+Structure du projet
 ---------
-le Répetoire contient les modules suivant :  (à faire)
-
-
+le répertoire contient les modules suivant :
+- *Index.js* : ce fichier contient le code principal en JS, permettant de charger les images pré-entrainées et de prédire si l'image affichée a la caméra sera une pizza ou pas.
+- *Index.html*: ce fichier contient l'interface de la page HTML, il appelle les modèles nécessaires à la prediction (knn,tfjs et mobilenet) et contient l'id des boutons Add pizza et Add food, permettant d'ajouter une image au dataset correct au cas ou celle-ci serait mal reconnu par le programme.
+- *Rename.py*: ce fichier Python contient une fonction permettant de renommer les fichier d'un dataset en ajoutant a chaque image un numéro qui s'incrémente.
+- *pizza_not_pizza*: ce dossier contient les dataset complet utilisé pour notre projet, un sous dossier pizza comportant les images de pizzas et un sous dossier not_pizza comportant les images de non-pizzas.
+- *pizza_full*: ce dossier contient toutes les images de pizzas du dataset après modifications par le fichier *rename.py*.
+- *not_pizza_full*: ce dossier contient toutes les images de non-pizzas du dataset après modifications par le fichier *rename.py*.
 Dataset  
 --------
 Nous avons utilisés un dataset via Kaggle pour notre projet, ce dataset contient 983 images de pizzas et 983 images d'autres plats.
 [Dataset's Web site](https://www.kaggle.com/datasets/carlosrunner/pizza-not-pizza)  
-
-install js package :
 --------
-- npm install @tensorflow/tfjs
-- npm install ramda
-- npm install scikitjs  (train_test_split)
-
---------
-## GitHub Action - Reconnaissance d'image de pizza
-
-### Utilisation
-
-```yaml
-name: PizzaNotpizza
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  pizza-recognition:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run PizzaNotpizza
-        run: node main.js
-       
-```
-L'action est déclenchée à chaque push ou pull request sur la branche "main". 
-Elle effectue les étapes suivantes :
-
-1.Récupération du code source du dépôt.
-
-2.Configuration de Node.js avec la version 14.
-
-3.Installation des dépendances à partir du fichier package.json.
-
-4.Exécution du script main.js qui contient l'algorithme.
-
-## GitHub Action - Evaluation de performances
-### Utilisation
-```yaml
-name: Surveillance de performances
-
-on:
-  schedule:
-    - cron: "0 0 * * *"  # L'action s'éxecutera tout les jours a minuit.
-
-jobs:
-  evaluer-modele:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Récupérer le code source
-        uses: actions/checkout@v2
-
-      - name: Installer les dépendances
-        run: npm ci
-
-      - name: Évaluer les performances
-        run: node performances.js
-```
-
+## GitHub Action 
 --------
 ## Editor config utilisé
 ```
