@@ -1,4 +1,4 @@
-<p align="center"><img src="pizzaBurger.jpg"></p>
+<p align="center"><img src="bannerpizza.png"></p>
 
 Pizza Or Not Pizza?  
 ===================
@@ -30,7 +30,8 @@ Nous avons utilisés un dataset via Kaggle pour notre projet, ce dataset contien
 
 ## GitHub Action 
 --------
-- *editorconfig-checker*: Télécharge un clone du repo, installe l'outil editorconfig-checker, vérifie si le style du code respecte l'editorconfig du repo.
+- *editorconfig-checker*: Télécharge un clone du repo, installe l'outil editorconfig-checker, vérifie si le style du code respecte l'editorconfig du repo.(pour l'instant désactivé)
+
 
 ## Editor config utilisé
 ```
