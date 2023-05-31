@@ -28,6 +28,8 @@ Nous avons utilisés un dataset via Kaggle pour notre projet, ce dataset contien
 
 ## GitHub Action 
 --------
+- *editorconfig-checker*: Télécharge un clone du repo, installe l'outil editorconfig-checker, vérifie si le style du code respecte l'editorconfig du repo.
+
 ## Editor config utilisé
 ```
 # EditorConfig is awesome: https://EditorConfig.org
