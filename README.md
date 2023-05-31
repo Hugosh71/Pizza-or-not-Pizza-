@@ -27,6 +27,16 @@ Dataset
 Nous avons utilisés un dataset via Kaggle pour notre projet, ce dataset contient 983 images de pizzas et 983 images d'autres plats.
 [Dataset's Web site](https://www.kaggle.com/datasets/carlosrunner/pizza-not-pizza)  
 
+## Lancer le code (VSCode)
+--------
+- Telechargez le repo via le bouton "Code", puis extrayez les fichiers.
+- Ouvrez le projet sur VSCode.
+- Installez l'extension "Live Server" de Ritwick Dey.
+- Une fois l'extension installée et VSCode redémarré, vous devriez voir un bouton "Go Live".
+- Cliquez sur le bouton Go Live avec le dossier du projet ouvert.
+- Vous devriez maintenant avoir l'interface HTML du projet ouvert, attendez environ 20 secondes que la base de données charge.
+- Une fois la base de données chargée, votre webcam s'allumera et vous pourrez tester le classifieur en montrant à la caméra une image de pizza (ou pas !).
+
 
 ## GitHub Action 
 --------
@@ -46,12 +56,4 @@ end_of_line = lf
 insert_final_newline = true
 charset = utf-8
 ```
-## Lancer le code (VSCode)
---------
-- Telechargez le repo via le bouton "Code", puis extrayez les fichiers
-- Ouvrez le projet sur VSCode
-- Installez l'extension "Live Server" de Ritwick Dey
-- Une fois l'extension installée et VSCode redémarré, vous devriez voir un bouton "Go Live"
-- Cliquez sur le bouton Go Live avec le dossier du projet ouvert
-- Vous devriez maintenant avoir l'interface HTML du projet ouvert, attendez environ 20 secondes que la base de données charge.
-- Une fois la base de données chargée, votre webcam s'allumera et vous pourrez tester le classifieur en montrant à la caméra une image de pizza (ou pas !)
+
