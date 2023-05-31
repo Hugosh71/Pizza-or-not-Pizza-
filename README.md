@@ -1,3 +1,5 @@
+<p align="center"><img src="pizzaBurger.jpg"></p>
+
 Pizza Or Not Pizza?  
 ===================
 [![Style checker](https://github.com/Hugosh71/Pizza-or-not-Pizza-/actions/workflows/editorconfig-checker.yml/badge.svg)](https://github.com/Hugosh71/Pizza-or-not-Pizza-/actions/workflows/editorconfig-checker.yml)
