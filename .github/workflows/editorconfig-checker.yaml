@@ -1,0 +1,21 @@
+name: Vérification du style de code
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  style_check:
+    name: Vérification du style de code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Vérifier le dépôt
+        uses: actions/checkout@v2
+
+      - name: Installer EditorConfig
+        run: npm install -g editorconfig-checker
+
+      - name: Vérifier le style de code
+        run: editorconfig-checker
+
