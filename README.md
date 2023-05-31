@@ -1,8 +1,8 @@
 Pizza Or Not Pizza?  
 ===================
-Un simple classifieur d'images déterminant si une image est une pizza (ou pas ?).
-[![editor config](https://github.com/Hugosh71/Pizza-or-not-Pizza-/actions/workflows/editorconfig-checker.yml/badge.svg)](https://github.com/Hugosh71/Pizza-or-not-Pizza-/actions/workflows/editorconfig-checker.yml)
+[![Style checker](https://github.com/Hugosh71/Pizza-or-not-Pizza-/actions/workflows/editorconfig-checker.yml/badge.svg)](https://github.com/Hugosh71/Pizza-or-not-Pizza-/actions/workflows/editorconfig-checker.yml)
 
+Un simple classifieur d'images déterminant si une image est une pizza (ou pas ?).
 
 Structure du projet
 ---------
