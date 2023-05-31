@@ -37,6 +37,7 @@ Nous avons utilisés un dataset via Kaggle pour notre projet, ce dataset contien
 - Vous devriez maintenant avoir l'interface HTML du projet ouvert, attendez environ 20 secondes que la base de données charge.
 - Une fois la base de données chargée, votre webcam s'allumera et vous pourrez tester le classifieur en montrant à la caméra une image de pizza (ou pas !).
 
+<p align="center"><img src="interfacehtml.png"></p>
 
 ## GitHub Action 
 --------
